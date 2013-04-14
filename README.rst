@@ -1,9 +1,9 @@
 iphy - hip nanoblogging
-========================
+=======================
 enjoy.
 
-INSTALL
-========================
+install
+=======
 You need:
 
 * local py27 env with Fabric and clone of this repo
@@ -19,4 +19,8 @@ You do:
 * configure settings.py (see sample) in var/iphy-instance
 * install mongo in the same virtualenv (e.g. place binaries in bin)
 * fab deploy:target=production # and that's it, app runs port 5000!
+
+customize
+=========
+Any template in instance/templates/ will overwrite the ones here.
 

@@ -1,7 +1,7 @@
-from flask import Blueprint
+import flask
 
 
-hip = Blueprint('hip', __name__)
+hip = flask.Blueprint('hip', __name__)
 
 
 def initialize_app(app):
@@ -10,5 +10,5 @@ def initialize_app(app):
 
 @hip.route("/")
 def hello():
-    return "Iphy!"
+    return flask.render_template("home.html")
 
