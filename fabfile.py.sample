@@ -1,0 +1,114 @@
+import os.path
+
+from functools import wraps
+from fabric.api import *
+from fabric.contrib.files import exists
+
+env['target_defs'] = {
+    'staging': {
+    },
+    'production': {
+        'host_string': 'user@host',
+        'project_root': '/var/local/project-root', # not slash ended, please! :)
+        'virtualenv':  'virtualenv',
+        'python': '/var/local/a/Python/bin/python',
+    },
+}
+env['default_target'] = 'staging'
+
+
+def choose_target(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        name = kwargs.pop('target', None)
+        if name is None and 'target' not in env:
+            name = env['default_target']
+
+        if name is None:
+            target_env = {}
+        else:
+            target_env = env['target_defs'][name]
+            target_env['target'] = name
+
+        with settings(**target_env):
+            return func(*args, **kwargs)
+
+    return wrapper
+
+
+@task
+def pack():
+    # create a new source distribution as tarball
+    local('python setup.py sdist --formats=gztar', capture=False)
+
+
+@task
+@choose_target
+def build_env():
+    """ a sad try, never actually used """
+    mkdirp = [[""], ["var"], ["var", "iphy-instance"],
+	      ["var", "iphy-instance", "log"],
+              ["var", "iphy-instance", "files"],
+              ["var", "iphy-instance", "supervisor"]]
+    root = env['target']['project_root']
+    for mkdir in mkdirp:
+        directory = os.path.join(root, *mkdir)
+        if not exists(directory):
+            run('mkdir %s' % directory)
+    run("%s --python=%s --no-site-packages --distribute %s" %
+        (env['virtualenv'], env['python'], root))
+    run("%s/bin/pip install gunicorn" % root)
+    run("%s/bin/pip install supervisor" % root)
+
+
+def supervisor(root, command):
+    run('%s/bin/supervisorctl %s' %
+                    (root, root, command))
+
+
+@task
+@choose_target
+def restart():
+    supervisor(env['project_root'], "restart iphy")
+
+
+@task
+@choose_target
+def status():
+    supervisor(env['project_root'],"status")
+
+
+@task
+@choose_target
+def start():
+    supervisor(env['project_root'],"start iphy")
+
+
+@task
+@choose_target
+def stop():
+    supervisor(env['project_root'],"stop iphy")
+
+
+@task
+@choose_target
+def deploy():
+    execute("pack")
+    # figure out the release name and version
+    dist = local('python setup.py --fullname', capture=True).strip()
+    # upload the source tarball to the temporary folder on the server
+    put('dist/%s.tar.gz' % dist, '/tmp/%s.tar.gz' % dist)
+    # create a place where we can unzip the tarball, then enter
+    # that directory and unzip it
+    run('mkdir /tmp/%s' % dist)
+    try:
+        with cd('/tmp/%s' % dist):
+            run('tar xzf /tmp/%s.tar.gz' % dist)
+            # now setup the package in our virtual environment
+            with cd(dist):
+                run('%s/bin/python setup.py install' % env['project_root'])
+        execute("restart")
+    except:
+        pass
+    finally:
+        run('rm -rf /tmp/%s /tmp/%s.tar.gz' % (dist, dist))
