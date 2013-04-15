@@ -1,7 +1,7 @@
 from flask import Flask
 from path import path
 import jinja2
-from iphy import hip
+from iphy import hip, db
 
 DEFAULT_CONFIG = {
     'MONGODB_SETTINGS': {
@@ -20,7 +20,11 @@ def create_app(instance_path=None, config={}):
     app.config.from_pyfile('settings.py', silent=True)
     configure_blueprints(app, BLUEPRINTS)
     configure_templates(app)
+    configure_db(app)
     return app
+
+def configure_db(app):
+    db.initialize_db(app)
 
 def configure_blueprints(app, blueprints):
     for blueprint in blueprints:
