@@ -50,7 +50,7 @@ def build_env():
 	      ["var", "iphy-instance", "log"],
               ["var", "iphy-instance", "files"],
               ["var", "iphy-instance", "supervisor"]]
-    root = env['target']['project_root']
+    root = env['project_root']
     for mkdir in mkdirp:
         directory = os.path.join(root, *mkdir)
         if not exists(directory):
