@@ -9,6 +9,6 @@ def initialize_app(app):
 
 
 @hip.route("/")
-def hello():
+def home():
     return flask.render_template("home.html")
 
