@@ -1,13 +1,13 @@
 [program:iphy]
 directory=PROJECT_ROOT/
-command=PROJECT_ROOT/bin/gunicorn --bind 127.0.0.1:5000 --workers 2 --log-file PROJECT_ROOT/var/iphy-instance/logs/gunicorn.log iphy.manage:app
+command=PROJECT_ROOT/bin/gunicorn --bind 127.0.0.1:5000 --workers 2 --log-file PROJECT_ROOT/var/iphy.app-instance/logs/gunicorn.log iphy.manage:app
 autostart=true
 autorestart=true
 redirect_stderr=true
 
 [program:mongo-iphy]
 directory=PROJECT_ROOT/
-command=PROJECT_ROOT/bin/mongod --smallfiles --oplogSize 1024 --dbpath PROJECT_ROOT/var/iphy-instance/data/0/ --port 27000 --logpath PROJECT_ROOT/var/iphy-instance/logs/mongo0.log
+command=PROJECT_ROOT/bin/mongod --smallfiles --oplogSize 1024 --dbpath PROJECT_ROOT/var/iphy.app-instance/data/0/ --port 27000 --logpath PROJECT_ROOT/var/iphy.app-instance/logs/mongo0.log
 autostart=true
 autorestart=true
 redirect_stderr=true
