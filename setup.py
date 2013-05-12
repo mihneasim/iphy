@@ -23,6 +23,7 @@ setup(
                       'Flask-Uploads==0.1.3',
                       'Flask-Login==0.1.3',
                       'Flask-PyMongo==0.2.1',
+                      'Flask-Admin==1.0.5'
                       'webassets==0.8',
                       'pymongo==2.4.2',
                       'WTForms==1.0.3',

@@ -1,7 +1,9 @@
 from flask import Flask
 from path import path
 import jinja2
-from iphy import hip, db, auth
+
+from iphy import hip, db, auth, admin
+
 
 DEFAULT_CONFIG = {
     'MONGODB_SETTINGS': {
@@ -23,11 +25,16 @@ def create_app(instance_path=None, config={}):
     configure_blueprints(app, BLUEPRINTS)
     configure_templates(app)
     configure_authentication(app)
+    configure_admin(app)
     return app
 
 
 def configure_db(app):
     db.initialize_db(app)
+
+
+def configure_admin(app):
+    admin.configure_admin(app)
 
 
 def configure_blueprints(app, blueprints):
@@ -41,7 +48,7 @@ def configure_authentication(app):
 
 def configure_templates(app):
     instance_path = app.instance_path
-    paths = [ str(path(instance_path)/'templates'),
-              str(path(__file__).parent/'templates') ]
-    app.jinja_env.loader = jinja2.FileSystemLoader(paths)
-
+    flask_loader = app.jinja_env.loader
+    custom_path = str(path(instance_path)/'templates')
+    app.jinja_env.loader = jinja2.ChoiceLoader([jinja2.FileSystemLoader(custom_path),
+                                                flask_loader])
