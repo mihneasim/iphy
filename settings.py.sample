@@ -1,4 +1,4 @@
-MONGO_URI = 'mongodb://localhost:27000/iphy'
+MONGO_URI = 'mongodb://localhost:27017/iphy'
 ASSETS_DEBUG = True
 CSRF_ENABLED = True
 SECRET_KEY = 'wa77up'
