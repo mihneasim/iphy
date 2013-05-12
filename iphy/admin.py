@@ -1,22 +1,43 @@
+import os
+
 from flask.ext import wtf
 from flask.ext.admin.contrib.pymongo import ModelView
-from flask.ext import admin
+from flask.ext import admin as flask_admin
+from flask.ext.login import login_required
+from flask.ext.uploads import (UploadSet, AllExcept, SCRIPTS, EXECUTABLES)
 
 from iphy.db import mongo
+
+
+files = UploadSet('files', AllExcept(SCRIPTS + EXECUTABLES))
 
 
 class PostForm(wtf.Form):
     title = wtf.TextField('Title')
     description = wtf.TextAreaField('Description')
     content = wtf.TextAreaField('Body')
+    filefield = wtf.FileField('Files')
+    visible = wtf.BooleanField('Published', default=True)
 
 
 class PostView(ModelView):
-    column_list = ('title', 'description', 'content')
+    column_list = ('title', 'description', 'content', 'visible')
     form = PostForm
 
+    def on_model_change(self, form, model):
+        super(PostView, self).on_model_change(form, model)
+        ffile = model['filefield']
+        if ffile.filename:
+            filename = files.save(model['filefield'])
+            model.setdefault('files', []).append({'file': filename})
+        del model['filefield']
+
+    def on_model_delete(self, model):
+        for ffile in model['files']:
+            abspath = files.path(ffile['file'])
+            os.unlink(abspath)
 
 def configure_admin(app):
     with app.app_context():
-        administration = admin.Admin(app)
+        administration = flask_admin.Admin(app)
         administration.add_view(PostView(mongo().db.post))

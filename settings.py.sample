@@ -1,4 +1,10 @@
+from path import path
+
 MONGO_URI = 'mongodb://localhost:27017/iphy'
 ASSETS_DEBUG = True
 CSRF_ENABLED = True
 SECRET_KEY = 'wa77up'
+
+UPLOADED_FILES_DEST = path(__file__).dirname().joinpath('files')
+
+UPLOADS_FILES_URL = '/static/files'

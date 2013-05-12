@@ -1,6 +1,9 @@
 from flask import Flask
 from path import path
 import jinja2
+from flask.ext.uploads import (configure_uploads, UploadSet, AllExcept,
+                               SCRIPTS, EXECUTABLES)
+from werkzeug import SharedDataMiddleware
 
 from iphy import hip, db, auth, admin
 
@@ -12,6 +15,8 @@ DEFAULT_CONFIG = {
     'ASSETS_DEBUG': False,
     'CSRF_ENABLED': False,
 }
+
+
 
 BLUEPRINTS = (hip, auth)
 
@@ -26,6 +31,8 @@ def create_app(instance_path=None, config={}):
     configure_templates(app)
     configure_authentication(app)
     configure_admin(app)
+    configure_uploads(app, admin.files)
+    configure_statics(app)
     return app
 
 
@@ -52,3 +59,10 @@ def configure_templates(app):
     custom_path = str(path(instance_path)/'templates')
     app.jinja_env.loader = jinja2.ChoiceLoader([jinja2.FileSystemLoader(custom_path),
                                                 flask_loader])
+
+
+def configure_statics(app):
+    if app.config['DEBUG']:
+        app.wsgi_app = SharedDataMiddleware(app.wsgi_app, {
+            "/static/files": app.config['UPLOADED_FILES_DEST'],
+        })
