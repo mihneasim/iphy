@@ -3,7 +3,7 @@ import hashlib
 
 from flask import (Blueprint, request, render_template, redirect, url_for,
                    flash, g)
-from flask.ext.login import LoginManager
+from flask.ext.login import LoginManager, UserMixin
 from flask.ext import login as flask_login
 
 from iphy.db import mongo
@@ -14,6 +14,14 @@ auth = Blueprint('auth', __name__)
 
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
+
+
+class User(UserMixin, dict):
+    """ implement required user interface for Flask-Login """
+
+    def __init__(self, *args, **kwargs):
+        super(User, self).__init__(*args, **kwargs)
+        self.id = self['_id']
 
 
 def load_user_in_g():
@@ -27,7 +35,9 @@ def initialize_app(app):
 
 def get_user(userid):
     """ Get user document object """
-    return mongo().db.user.find_one({"_id": userid})
+    user = mongo().db.user.find_one({"_id": userid})
+    if user:
+        return User(user)
 
 
 def get_crypt(password, salt):
@@ -57,9 +67,9 @@ def login():
         if user:
             flask_login.login_user(user)
             flash('Logged in successfully as %s %s (%s).' %
-                  (user.first_name, user.last_name, user.id))
-            user.last_login = datetime.datetime.utcnow()
-            user.save(safe=False)
+                  (user['first_name'], user['last_name'], user['_id']))
+            user['last_login'] = datetime.datetime.utcnow()
+            mongo().db.user.save(user)
             resp = redirect(request.args.get("next") or url_for('hip.home'))
             return resp
         else:
