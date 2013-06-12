@@ -1,5 +1,7 @@
 import datetime
 import hashlib
+import string
+import random
 
 from flask import (Blueprint, request, render_template, redirect, url_for,
                    flash, g)
@@ -22,6 +24,14 @@ class User(UserMixin, dict):
     def __init__(self, *args, **kwargs):
         super(User, self).__init__(*args, **kwargs)
         self.id = self['_id']
+
+
+def create_user(username, password, email, first, last):
+    doc = {'_id': username, 'email': email, 'first_name': first,
+           'last_name': last}
+    doc['salt'] = ''.join([random.choice(string.printable) for x in range(10)])
+    doc['pass'] = get_crypt(password, doc['salt'])
+    return mongo().db.user.insert(doc)
 
 
 def load_user_in_g():
