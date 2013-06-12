@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 
 from flask.ext import wtf
 from flask.ext.admin.contrib.pymongo import ModelView
@@ -41,6 +42,8 @@ class PostView(ModelView, AuthView):
         # set author if missing
         if not model.get('author'):
             model['author'] = login.current_user['_id']
+        if not model.get('date'):
+            model['date'] = datetime.now()
 
     def on_model_delete(self, model):
         for ffile in model['files']:
