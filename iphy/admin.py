@@ -32,11 +32,15 @@ class PostView(ModelView, AuthView):
 
     def on_model_change(self, form, model):
         super(PostView, self).on_model_change(form, model)
+        # file upload
         ffile = model['filefield']
         if ffile.filename:
             filename = files.save(model['filefield'])
             model.setdefault('files', []).append({'file': filename})
         del model['filefield']
+        # set author if missing
+        if not model.get('author'):
+            model['author'] = login.current_user['_id']
 
     def on_model_delete(self, model):
         for ffile in model['files']:
