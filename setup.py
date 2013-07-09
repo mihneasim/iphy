@@ -21,7 +21,7 @@ setup(
                       'Flask-WTF==0.8.3',
                       'Flask-Assets==0.8',
                       'Flask-Uploads==0.1.3',
-                      'Flask-Login==0.1.3',
+                      'Flask-Login==0.2.5',
                       'Flask-PyMongo==0.2.1',
                       'Flask-Admin==1.0.6',
                       'webassets==0.8',
