@@ -33,6 +33,8 @@ class PostView(ModelView, AuthView):
 
     def on_model_change(self, form, model):
         super(PostView, self).on_model_change(form, model)
+        # generate slug
+        # TODO for model['slug']
         # file upload
         ffile = model['filefield']
         if ffile.filename:

@@ -1,0 +1,6 @@
+<div class="post">
+    <h2><a href="{{ url_for("hip.post", slug=post.slug) }}">{{ post.title }}</a> </h2>
+    <div class="date">on {{ post.date.strftime('%d %B') }}</div>
+    <div class="author">by {{ post.author }}</div>
+    <div class="description">{{ post.description }}</div>
+</div>

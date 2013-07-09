@@ -1,5 +1,9 @@
 {% extends "layout.html" %}
 {% block content %}
 you feel like home.
-{% endblock content %}
 
+{% for post in posts %}
+    {% include "post_preview.html" %}
+{% endfor %}
+
+{% endblock content %}

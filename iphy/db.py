@@ -16,5 +16,5 @@ def initialize_db(app):
 
 
 # User: _id as username, pass, salt, email, first_name, last_name
-# Post: title, author, description, content, files[{title, description, file, size}]
+# Post: title, slug, author, description, content, files[{title, description, file, size}]
 
